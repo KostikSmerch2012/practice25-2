@@ -11,7 +11,7 @@ ROOT = os.path.abspath(
 )
 sys.path.insert(0, ROOT)
 
-from src.config import (  # noqa: E402
+from src.config import (
     build_parser,
     print_config,
     validate_config,
