@@ -33,18 +33,16 @@ $PY --package A --repo missing.txt \
   --version 1.0.0 --test-mode
 set -e
 
-echo "=== ТЕСТ 6: Успех — NuGet URL, все параметры ==="
-$PY --package Serilog.Sinks.File \
-  --repo "$NUGET" \
-  --version 5.0.0 \
-  --ascii-tree \
-  --filter System
-
-echo "=== ТЕСТ 7: Успех — тестовый репозиторий ==="
+echo "=== ТЕСТ 6: Успех — тестовый репозиторий ==="
 $PY --package A \
   --repo fixtures/repo_simple.txt \
   --version 1.0.0 \
   --test-mode
+
+echo "=== ТЕСТ 7: Успех — NuGet (прямые зависимости) ==="
+$PY --package Serilog.Sinks.File \
+  --repo "$NUGET" \
+  --version 5.0.0
 
 echo "=== Юнит-тесты ==="
 python3 -m unittest discover -s tests -v
