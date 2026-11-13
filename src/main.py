@@ -1,16 +1,17 @@
-"""Точка входа CLI — этап 2 (сбор данных)."""
+"""Точка входа CLI — этап 3 (основные операции)."""
 
 import sys
 
-from src.collector import collect_direct_deps, print_deps
+from src.builder import build_dependency_graph
 from src.config import load_config, success_code
+from src.graph import print_graph
 
 
 def main(argv=None):
-    """Читает CLI, собирает и печатает прямые зависимости."""
+    """Читает CLI, строит граф DFS и печатает результат."""
     args = load_config(argv)
-    deps = collect_direct_deps(args)
-    print_deps(deps)
+    graph, cycles = build_dependency_graph(args)
+    print_graph(graph, cycles)
     return success_code()
 
 
