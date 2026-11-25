@@ -1,38 +1,43 @@
-# Визуализация графа зависимостей NuGet — этап 4
+# Визуализация графа зависимостей NuGet — этап 5
 
 ## 1. Общее описание
 
-CLI-приложение практической работы №2 (вариант №25,
-Тимиров). Программа строит граф зависимостей (DFS без
-рекурсии), поддерживает `--filter`, циклы и test-mode.
-На **этапе 4** добавлен вывод **обратных зависимостей**:
-пакеты, которые зависят от заданного `--package`
-(тот же DFS по инвертированному графу).
+CLI (вариант №25): граф зависимостей (DFS), фильтр,
+циклы, test-mode, обратные зависимости (`--reverse-deps`).
+**Этап 5** добавляет визуализацию: текст **Mermaid**,
+файл **SVG** (`output/graph.svg`) и при флаге
+`--ascii-tree` — дерево в терминале.
 
-## 2. Описание функций и настроек
+Сравнение с `dotnet list package --include-transitive`:
+наш обход строится из `.nuspec` flat container и может
+отличаться по версиям диапазонов и пакетам платформы.
+
+## 2. Параметры
 
 | Параметр | Назначение |
 | --- | --- |
-| `--package` | Имя анализируемого пакета |
-| `--repo` | URL репозитория или путь к тестовому файлу |
-| `--test-mode` | Режим тестового репозитория |
-| `--version` | Версия пакета (для NuGet) |
-| `--filter` | Не учитывать пакеты с подстрокой в имени |
+| `--package` | Корневой пакет |
+| `--repo` | URL NuGet или путь к тестовому файлу |
+| `--version` | Версия (NuGet) |
+| `--test-mode` | Граф из файла `A: B C` |
+| `--filter` | Исключить имена с подстрокой |
 | `--reverse-deps` | Обратные зависимости (этап 4) |
-| `--ascii-tree` | ASCII-дерево (этап 5) |
+| `--ascii-tree` | ASCII-дерево в терминале (этап 5) |
 
-Тестовый файл: строки `A: B C` (заглавные латинские буквы).
-
-## 3. Сборка и запуск
+## 3. Запуск
 
 ```bash
 chmod +x run.sh && ./run.sh
 ```
 
-Прямой граф (этап 3):
+```bash
+cd "/Users/talgat/Проекты/Конфиги"
+export PYTHONPATH=.
+```
+
+Тест + Mermaid + SVG:
 
 ```bash
-export PYTHONPATH="."
 python3 -m src.main \
   --package A \
   --repo fixtures/repo_simple.txt \
@@ -40,52 +45,62 @@ python3 -m src.main \
   --test-mode
 ```
 
-Обратные зависимости (этап 4):
+С ASCII-деревом:
 
 ```bash
-PYTHONPATH=. python3 -m src.main \
-  --package D \
+python3 -m src.main \
+  --package A \
   --repo fixtures/repo_simple.txt \
   --version 1.0.0 \
   --test-mode \
-  --reverse-deps
+  --ascii-tree
 ```
+
+Три NuGet-пакета для демонстрации (этап 5):
 
 ```bash
-PYTHONPATH=. python3 -m src.main \
-  --package C \
-  --repo fixtures/repo_chain.txt \
-  --version 1.0.0 \
-  --test-mode \
-  --reverse-deps
+python3 -m src.main --package Serilog.Sinks.File \
+  --repo https://api.nuget.org/v3-flatcontainer \
+  --version 5.0.0 --filter System
+
+python3 -m src.main --package NUnit \
+  --repo https://api.nuget.org/v3-flatcontainer \
+  --version 3.14.0 --filter Microsoft
+
+python3 -m src.main --package AutoMapper \
+  --repo https://api.nuget.org/v3-flatcontainer \
+  --version 12.0.1 --ascii-tree
 ```
+
+Просмотр SVG на macOS:
 
 ```bash
-PYTHONPATH=. python3 -m unittest discover -s tests -v
+open output/graph.svg
 ```
 
-## 4. Примеры использования
+Тесты:
 
-Обратные зависимости пакета `D` (`repo_simple.txt`):
-
-```text
-=== Обратные зависимости ===
-D -> B, C
-B -> A
-C -> A
-A ->
-===========================
-=== Циклы ===
-(нет)
-=============
+```bash
+python3 -m unittest discover -s tests -v
 ```
 
-Цепочка: обратные для `C`:
+## 4. Пример вывода
 
 ```text
-=== Обратные зависимости ===
-C -> B
-B -> A
-A ->
-===========================
+=== Mermaid ===
+flowchart TD
+  A["A"]
+  ...
+=== Изображение графа ===
+output/graph.svg
+```
+
+```text
+=== ASCII-дерево ===
+A
+├── B
+│   └── D
+└── C
+    └── D
+====================
 ```
