@@ -5,21 +5,24 @@ from src.graph import build_graph_dfs
 
 
 def build_dependency_graph(args):
-    """Строит граф и список циклов по параметрам запуска."""
-    root, provider = _make_root_and_provider(args)
-    return build_graph_dfs(root, provider, args.filter)
+    """Строит граф, циклы и словарь версий."""
+    root, provider, versions = _make_root_and_provider(args)
+    graph, cycles = build_graph_dfs(root, provider, args.filter)
+    return graph, cycles, versions
 
 
 def _make_root_and_provider(args):
-    """Готовит корень обхода и функцию соседей."""
+    """Готовит корень обхода, соседей и версии."""
     if args.test_mode:
         root = args.package.strip().upper()
-        provider = make_test_provider(args.repo)
-        return root, provider
+        pair = make_test_provider(args.repo, args.version)
+        provider, versions = pair
+        return root, provider, versions
     root = args.package
-    provider = make_nuget_provider(
+    pair = make_nuget_provider(
         args.repo,
         args.package,
         args.version,
     )
-    return root, provider
+    provider, versions = pair
+    return root, provider, versions

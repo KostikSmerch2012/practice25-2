@@ -28,32 +28,39 @@ class TestVisualize(unittest.TestCase):
         )
 
     def test_build_mermaid_simple(self):
-        """Mermaid содержит узлы и рёбра."""
+        """Mermaid содержит узлы, версии и рёбра."""
         graph = {"A": ["B", "C"], "B": ["D"], "C": [], "D": []}
-        text = build_mermaid(graph)
+        vers = {"A": "1.0.0", "B": "2.0.0", "C": "1.1.0", "D": "3.0.0"}
+        text = build_mermaid(graph, vers)
         self.assertIn("flowchart TD", text)
+        self.assertIn('A["A 1.0.0"]', text)
         self.assertIn("A --> B", text)
         self.assertIn("A --> C", text)
 
     def test_save_svg_and_mmd(self):
-        """SVG и MMD сохраняются на диск."""
+        """SVG и MMD сохраняются, в SVG есть версия."""
         graph = {"A": ["B"], "B": []}
+        vers = {"A": "1.0.0", "B": "2.0.0"}
         with tempfile.TemporaryDirectory() as tmp:
             with mock.patch(
                 "src.svg_out.OUTPUT_DIR",
                 tmp,
             ):
                 save_mermaid_file("flowchart TD\n  A --> B")
-                path = save_svg_graph("A", graph)
+                path = save_svg_graph("A", graph, vers)
                 self.assertTrue(os.path.isfile(path))
+                with open(path, encoding="utf-8") as handle:
+                    body = handle.read()
+                self.assertIn("A 1.0.0", body)
                 mmd = os.path.join(tmp, MMD_FILE)
                 self.assertTrue(os.path.isfile(mmd))
 
     def test_ascii_tree_print(self):
-        """ASCII-дерево печатается без ошибок."""
+        """ASCII-дерево печатается с версиями."""
         graph = {"A": ["B", "C"], "B": ["D"], "C": ["D"], "D": []}
+        vers = {"A": "1.0.0", "B": "2.0.0"}
         with mock.patch("builtins.print") as mocked:
-            print_ascii_tree("A", graph)
+            print_ascii_tree("A", graph, vers)
             self.assertTrue(mocked.called)
 
 

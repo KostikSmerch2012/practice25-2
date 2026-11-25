@@ -1,6 +1,7 @@
 """Построение графа зависимостей итеративным DFS."""
 
 from src.constants import EMPTY_COUNT
+from src.labels import format_label
 
 
 def is_filtered(name, filt):
@@ -79,37 +80,41 @@ def _ensure_adj_node(adj, name):
         adj[name] = []
 
 
-def print_reverse_graph(graph, cycles):
+def print_reverse_graph(graph, cycles, versions=None):
     """Печатает обратные зависимости и циклы."""
     print("=== Обратные зависимости ===")
     if len(graph) == EMPTY_COUNT:
         print("(пусто)")
     else:
         for node in graph:
-            _print_edges(node, graph[node])
+            _print_edges(node, graph[node], versions)
     print("===========================")
     _print_cycles(cycles)
 
 
-def print_graph(graph, cycles):
+def print_graph(graph, cycles, versions=None):
     """Печатает граф зависимостей и найденные циклы."""
     print("=== Граф зависимостей ===")
     if len(graph) == EMPTY_COUNT:
         print("(пусто)")
     else:
         for node in graph:
-            _print_edges(node, graph[node])
+            _print_edges(node, graph[node], versions)
     print("=========================")
     _print_cycles(cycles)
 
 
-def _print_edges(node, deps):
-    """Печатает рёбра одного узла."""
+def _print_edges(node, deps, versions):
+    """Печатает рёбра одного узла с версиями."""
+    left = format_label(node, versions)
     if len(deps) == EMPTY_COUNT:
-        print(f"{node} ->")
+        print(f"{left} ->")
         return
-    joined = ", ".join(deps)
-    print(f"{node} -> {joined}")
+    parts = []
+    for item in deps:
+        parts.append(format_label(item, versions))
+    joined = ", ".join(parts)
+    print(f"{left} -> {joined}")
 
 
 def _print_cycles(cycles):

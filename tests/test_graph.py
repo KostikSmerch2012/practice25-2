@@ -42,7 +42,7 @@ class TestGraph(unittest.TestCase):
                 "--test-mode",
             ]
         )
-        graph, cycles = build_dependency_graph(args)
+        graph, cycles, _vers = build_dependency_graph(args)
         self.assertEqual(graph["A"], ["B", "C"])
         self.assertEqual(graph["B"], ["D"])
         self.assertEqual(graph["C"], ["D"])
@@ -62,7 +62,7 @@ class TestGraph(unittest.TestCase):
                 "--test-mode",
             ]
         )
-        graph, cycles = build_dependency_graph(args)
+        graph, cycles, _vers = build_dependency_graph(args)
         self.assertEqual(
             set(graph.keys()),
             {"A", "B", "C", "D"},
@@ -82,7 +82,7 @@ class TestGraph(unittest.TestCase):
                 "--test-mode",
             ]
         )
-        graph, cycles = build_dependency_graph(args)
+        graph, cycles, _vers = build_dependency_graph(args)
         self.assertIn("A", graph)
         self.assertIn("B", graph)
         self.assertIn("C", graph)
@@ -104,7 +104,7 @@ class TestGraph(unittest.TestCase):
                 "B",
             ]
         )
-        graph, cycles = build_dependency_graph(args)
+        graph, cycles, _vers = build_dependency_graph(args)
         self.assertEqual(graph["A"], ["C"])
         self.assertNotIn("B", graph)
         self.assertIn("C", graph)

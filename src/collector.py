@@ -49,15 +49,18 @@ def load_test_graph(path):
     return graph
 
 
-def make_test_provider(path):
-    """Провайдер соседей для --test-mode."""
+def make_test_provider(path, version=""):
+    """Провайдер соседей и версий для --test-mode."""
     graph = load_test_graph(path)
+    versions = {}
+    for name in graph:
+        versions[name] = version
 
     def get_neighbors(package):
         key = package.strip().upper()
         return list(graph.get(key, []))
 
-    return get_neighbors
+    return get_neighbors, versions
 
 
 def make_nuget_provider(repo, root_package, root_version):
@@ -67,7 +70,7 @@ def make_nuget_provider(repo, root_package, root_version):
     def get_neighbors(package):
         return _nuget_neighbors(repo, package, versions)
 
-    return get_neighbors
+    return get_neighbors, versions
 
 
 def print_deps(deps):

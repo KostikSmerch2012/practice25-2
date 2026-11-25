@@ -1,6 +1,6 @@
 """Разбор прямых зависимостей из XML .nuspec."""
 
-import xml.etree.ElementTree as et
+import xml.etree.ElementTree as etree
 
 from src.constants import EMPTY_COUNT
 
@@ -9,7 +9,7 @@ def parse_nuspec_deps(text):
     """Возвращает список пар (id, version) без дублей."""
     if text is None or len(text.strip()) == EMPTY_COUNT:
         raise ValueError("пустой ответ .nuspec")
-    root = et.fromstring(text)
+    root = etree.fromstring(text)
     deps = []
     seen = set()
     for node in root.iter():

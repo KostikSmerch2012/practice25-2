@@ -7,6 +7,8 @@ CLI (вариант №25): граф зависимостей (DFS), фильт�
 **Этап 5** добавляет визуализацию: текст **Mermaid**,
 файл **SVG** (`output/graph.svg`) и при флаге
 `--ascii-tree` — дерево в терминале.
+На узлах графа (текст, Mermaid и SVG) указаны
+**имя и версия** пакета.
 
 Сравнение с `dotnet list package --include-transitive`:
 наш обход строится из `.nuspec` flat container и может

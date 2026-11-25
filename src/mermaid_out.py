@@ -1,21 +1,20 @@
 """Текст диаграммы Mermaid для графа зависимостей."""
 
 from src.constants import EMPTY_COUNT
+from src.labels import format_label, node_list
 
 
-def build_mermaid(graph):
-    """Возвращает текст flowchart TD для графа."""
+def build_mermaid(graph, versions=None):
+    """Возвращает текст flowchart TD с версиями."""
     lines = ["flowchart TD"]
     if len(graph) == EMPTY_COUNT:
         lines.append("  empty[нет данных]")
         return "\n".join(lines)
-    nodes = set(graph.keys())
-    for vals in graph.values():
-        for item in vals:
-            nodes.add(item)
-    for name in sorted(nodes):
+    names = node_list(graph)
+    for name in names:
         mid = mermaid_node_id(name)
-        lines.append(f'  {mid}["{name}"]')
+        label = format_label(name, versions)
+        lines.append(f'  {mid}["{label}"]')
     for src, dsts in graph.items():
         sid = mermaid_node_id(src)
         for dst in dsts:
@@ -24,9 +23,9 @@ def build_mermaid(graph):
     return "\n".join(lines)
 
 
-def print_mermaid(graph):
+def print_mermaid(graph, versions=None):
     """Печатает блок Mermaid на экран."""
-    text = build_mermaid(graph)
+    text = build_mermaid(graph, versions)
     print("=== Mermaid ===")
     print(text)
     print("===============")

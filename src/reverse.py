@@ -9,7 +9,7 @@ from src.graph import build_graph_dfs, invert_adjacency
 
 
 def build_reverse_graph(args):
-    """Возвращает обратный граф и циклы для --package."""
+    """Возвращает обратный граф, циклы и версии."""
     if args.test_mode:
         return _reverse_from_test(args)
     return _reverse_from_nuget(args)
@@ -25,15 +25,20 @@ def _reverse_from_test(args):
             "в тестовом репозитории"
         )
     reverse = invert_adjacency(forward)
-    return _dfs_reverse(root, reverse, args.filter)
+    graph, cycles = _dfs_reverse(root, reverse, args.filter)
+    versions = {}
+    for name in forward:
+        versions[name] = args.version
+    return graph, cycles, versions
 
 
 def _reverse_from_nuget(args):
     """Обратные зависимости внутри построенного NuGet-графа."""
-    forward, _ = build_dependency_graph(args)
+    forward, _, versions = build_dependency_graph(args)
     reverse = invert_adjacency(forward)
     root = args.package
-    return _dfs_reverse(root, reverse, args.filter)
+    graph, cycles = _dfs_reverse(root, reverse, args.filter)
+    return graph, cycles, versions
 
 
 def _dfs_reverse(root, reverse, filt):

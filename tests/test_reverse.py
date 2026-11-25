@@ -56,7 +56,7 @@ class TestReverse(unittest.TestCase):
                 "--reverse-deps",
             ]
         )
-        graph, cycles = build_reverse_graph(args)
+        graph, cycles, _vers = build_reverse_graph(args)
         self.assertEqual(sorted(graph["D"]), ["B", "C"])
         self.assertEqual(graph["B"], ["A"])
         self.assertEqual(graph["C"], ["A"])
@@ -77,7 +77,7 @@ class TestReverse(unittest.TestCase):
                 "--reverse-deps",
             ]
         )
-        graph, cycles = build_reverse_graph(args)
+        graph, cycles, _vers = build_reverse_graph(args)
         self.assertEqual(graph["C"], ["B"])
         self.assertEqual(graph["B"], ["A"])
         self.assertIn("A", graph)
@@ -96,7 +96,7 @@ class TestReverse(unittest.TestCase):
                 "--reverse-deps",
             ]
         )
-        graph, cycles = build_reverse_graph(args)
+        graph, cycles, _vers = build_reverse_graph(args)
         self.assertIn("B", graph)
         self.assertIn("A", graph["B"])
         self.assertTrue(len(cycles) >= 0)

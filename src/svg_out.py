@@ -1,7 +1,7 @@
 """SVG-изображение графа зависимостей (stdlib)."""
 
 import os
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as etree
 
 from src.constants import (
     MMD_FILE,
@@ -13,6 +13,7 @@ from src.constants import (
     SVG_HEIGHT,
     SVG_WIDTH,
 )
+from src.labels import format_label
 
 
 def save_mermaid_file(text):
@@ -24,13 +25,14 @@ def save_mermaid_file(text):
     return path
 
 
-def save_svg_graph(root, graph):
+def save_svg_graph(root, graph, versions=None):
     """Строит SVG и сохраняет в output/graph.svg."""
     _ensure_dir()
     path = os.path.join(OUTPUT_DIR, SVG_FILE)
     coords = _layout_positions(root, graph)
-    svg = _build_svg_doc(coords, graph)
-    ET.ElementTree(svg).write(
+    svg = _build_svg_doc(coords, graph, versions)
+    tree = etree.ElementTree(svg)
+    tree.write(
         path,
         encoding="utf-8",
         xml_declaration=True,
@@ -65,31 +67,36 @@ def _layout_positions(root, graph):
                 continue
             levels[child] = depth + 1
             order.append(child)
+    return _coords_from_levels(levels)
+
+
+def _coords_from_levels(levels):
+    """Считает координаты узлов по уровням."""
     per_level = {}
     for name, depth in levels.items():
         per_level.setdefault(depth, []).append(name)
     coords = {}
     for depth, names in per_level.items():
         for col, name in enumerate(names):
-            x = 60 + col * NODE_DX
-            y = 40 + depth * NODE_DY
+            x = 80 + col * NODE_DX
+            y = 50 + depth * NODE_DY
             coords[name] = (x, y)
     return coords
 
 
-def _build_svg_doc(coords, graph):
+def _build_svg_doc(coords, graph, versions):
     """Собирает корневой элемент SVG."""
     ns = "http://www.w3.org/2000/svg"
-    ET.register_namespace("", ns)
-    svg = ET.Element("svg", xmlns=ns)
+    etree.register_namespace("", ns)
+    svg = etree.Element("svg", xmlns=ns)
     svg.set("width", str(SVG_WIDTH))
     svg.set("height", str(SVG_HEIGHT))
-    _add_edges(svg, ns, coords, graph)
-    _add_nodes(svg, ns, coords)
+    _add_edges(svg, coords, graph)
+    _add_nodes(svg, coords, versions)
     return svg
 
 
-def _add_edges(svg, ns, coords, graph):
+def _add_edges(svg, coords, graph):
     """Рисует рёбра между узлами."""
     for src, dsts in graph.items():
         if src not in coords:
@@ -99,7 +106,7 @@ def _add_edges(svg, ns, coords, graph):
             if dst not in coords:
                 continue
             x2, y2 = coords[dst]
-            ET.SubElement(
+            etree.SubElement(
                 svg,
                 "line",
                 x1=str(x1),
@@ -110,10 +117,10 @@ def _add_edges(svg, ns, coords, graph):
             )
 
 
-def _add_nodes(svg, ns, coords):
-    """Рисует узлы и подписи."""
+def _add_nodes(svg, coords, versions):
+    """Рисует узлы и подписи с версиями."""
     for name, (x, y) in coords.items():
-        ET.SubElement(
+        etree.SubElement(
             svg,
             "circle",
             cx=str(x),
@@ -122,5 +129,14 @@ def _add_nodes(svg, ns, coords):
             fill="#eef",
             stroke="#333",
         )
-        label = ET.SubElement(svg, "text", x=str(x - NODE_R), y=str(y + 4))
-        label.text = name
+        _add_label(svg, name, x, y, versions)
+
+
+def _add_label(svg, name, x, y, versions):
+    """Текст имени и версии рядом с узлом."""
+    label = format_label(name, versions)
+    text = etree.SubElement(svg, "text")
+    text.set("x", str(x - NODE_R))
+    text.set("y", str(y + NODE_R + 14))
+    text.set("font-size", "11")
+    text.text = label

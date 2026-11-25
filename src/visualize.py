@@ -9,17 +9,17 @@ from src.svg_out import (
 )
 
 
-def render_visualization(args, graph):
+def render_visualization(args, graph, versions):
     """Печатает и сохраняет все виды визуализации."""
-    print_mermaid(graph)
-    text = build_mermaid(graph)
+    print_mermaid(graph, versions)
+    text = build_mermaid(graph, versions)
     mmd_path = save_mermaid_file(text)
     root = _visual_root(args)
-    svg_path = save_svg_graph(root, graph)
+    svg_path = save_svg_graph(root, graph, versions)
     print_image_message(svg_path)
     print(f"Mermaid-файл: {mmd_path}")
     if args.ascii_tree:
-        print_ascii_tree(root, graph)
+        print_ascii_tree(root, graph, versions)
 
 
 def _visual_root(args):
