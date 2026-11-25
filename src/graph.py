@@ -61,6 +61,36 @@ def _dfs_step(frames, on_path, graph, cycles, get_neighbors, filt):
     frames.append([child, 0, child_deps])
 
 
+def invert_adjacency(forward):
+    """Строит обратный граф: кто зависит от пакета."""
+    reverse = {}
+    for src, dsts in forward.items():
+        _ensure_adj_node(reverse, src)
+        for dst in dsts:
+            _ensure_adj_node(reverse, dst)
+            if src not in reverse[dst]:
+                reverse[dst].append(src)
+    return reverse
+
+
+def _ensure_adj_node(adj, name):
+    """Добавляет пустой список соседей для узла."""
+    if name not in adj:
+        adj[name] = []
+
+
+def print_reverse_graph(graph, cycles):
+    """Печатает обратные зависимости и циклы."""
+    print("=== Обратные зависимости ===")
+    if len(graph) == EMPTY_COUNT:
+        print("(пусто)")
+    else:
+        for node in graph:
+            _print_edges(node, graph[node])
+    print("===========================")
+    _print_cycles(cycles)
+
+
 def print_graph(graph, cycles):
     """Печатает граф зависимостей и найденные циклы."""
     print("=== Граф зависимостей ===")

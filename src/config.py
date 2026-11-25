@@ -54,6 +54,11 @@ def _add_mode_args(parser):
         action="store_true",
         help="Вывод зависимостей в виде ASCII-дерева",
     )
+    parser.add_argument(
+        "--reverse-deps",
+        action="store_true",
+        help="Вывод обратных зависимостей (этап 4)",
+    )
 
 
 def _fail(message):
@@ -126,6 +131,7 @@ def print_config(args):
     print(f"test_mode={args.test_mode}")
     print(f"version={args.version}")
     print(f"ascii_tree={args.ascii_tree}")
+    print(f"reverse_deps={args.reverse_deps}")
     print(f"filter={args.filter}")
     print("================================")
 

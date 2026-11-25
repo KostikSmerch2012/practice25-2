@@ -36,6 +36,7 @@ class TestConfig(unittest.TestCase):
         )
         self.assertFalse(args.test_mode)
         self.assertFalse(args.ascii_tree)
+        self.assertFalse(args.reverse_deps)
         self.assertEqual(args.filter, "")
 
     def test_missing_package_exits(self):
